@@ -26,13 +26,15 @@ class upload extends React.Component{
 
   s4 = () => {
     return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1);
-  }
+      .toString(16)
+      .substring(1);
+  };
 
   uniqueId = () => {
-    return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + 
-    this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-'
+    return(
+      this.s4() + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4()
+    );
+
   }
 
   findNewImage = async () => {
@@ -105,7 +107,6 @@ class upload extends React.Component{
       this.completeUploadBlob(blob, FilePath);
     };
     oReq.send();
-
   }
 
   completeUploadBlob = (blob, FilePath) => {
@@ -144,7 +145,7 @@ class upload extends React.Component{
     );
   };
 
-  processUpload = imageUrl => {
+  processUpload = (imageUrl) => {
     //Process here...
  
     //Set needed info
@@ -166,10 +167,10 @@ class upload extends React.Component{
     //Update database
  
     //Add to main feed
-    database.ref(`/photos/${imageId}`).set(`${photoObj}`);
+    database.ref(`/photos/${imageId}`).set(photoObj);
  
     //Set user photos object
-    database.ref(`/users/${userId}/photos/${imageId}`).set(`${photoObj}`);
+    database.ref(`/users/${userId}/photos/${imageId}`).set(photoObj);
  
     alert("Image Uploaded!!");
  
