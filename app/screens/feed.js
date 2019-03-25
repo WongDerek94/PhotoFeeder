@@ -64,11 +64,32 @@ class feed extends React.Component{
       }
 
       return Math.floor(seconds) + ' second' + this.pluralCheck(seconds)
-
-
-
-
       
+    }
+
+    addToFlatList = (photo_feed, data, photo) => {
+      console.log(data)
+      console.log(photo)
+      var that = this;
+      var photoObj = data[photo];
+      database.ref('users').child(`${photoObj.author}`).child('username').once('value').then(function(snapshot) {
+        const exists = (snapshot.val() !== null)
+        if(exists) data = snapshot.val();
+          photo_feed.push({
+            // id: photo,
+            url: photoObj.url,
+            caption: photoObj.caption,
+            posted: that.timeConverter(photoObj.posted),
+            // author: data,
+            authorId: photoObj.author
+          });
+
+          that.setState({
+            refresh: false,
+            loading: false,
+            
+          });
+      }).catch(error => console.log(error));
     }
 
     loadFeed = () => {
@@ -90,25 +111,7 @@ class feed extends React.Component{
         var photo_feed = that.state.photo_feed;
 
         for(var photo in data){
-          var photoObj = data[photo];
-          database.ref('users').child(`${photoObj.author}`).child('username').once('value').then(function(snapshot) {
-            const exists = (snapshot.val() !== null)
-            if(exists) data = snapshot.val();
-              photo_feed.push({
-                id: photo,
-                url: photoObj.url,
-                caption: photoObj.caption,
-                posted: that.timeConverter(photoObj.posted),
-                author: data,
-                authorId: photoObj.author
-              });
-
-              that.setState({
-                refresh: false,
-                loading: false,
-                
-              });
-          }).catch(error => console.log(error));
+          that.addToFlatList(photo_feed, data, photo);
         }
       }).catch(error => console.log(error));
 
@@ -142,12 +145,11 @@ class feed extends React.Component{
             style={{flex:1, backgroundColor: '#eee'}}
             renderItem={({item, index}) => (
               <View key={index} style={{width: '100%', overflow: 'hidden', marginBottom: 5, justifyContent:'space-between', borderBottomWidth: 1, borderColor: 'grey'}}>
-
                 <View style={{padding: 5, width: '100%', flexDirection: 'row', justifyContent: 'space-between'}}>
                   <Text>{item.posted}</Text>
                   <TouchableOpacity
                   onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
-                  <Text>{item.author}</Text>
+                  <Text>{item.authorId}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -161,7 +163,7 @@ class feed extends React.Component{
                 <View style={{padding:5}}>
                   <Text>{item.caption}</Text>
                   <TouchableOpacity
-                  onPress={ () => this.props.navigation.navigate('Comments', {userId: item.id})}>
+                  onPress={ () => this.props.navigation.navigate('Comments', {userId: item.authorId})}>
                     <Text style={{color: 'blue', marginTop: 10, textAlign: 'center'}}>[ View comments... ]</Text>
                   </TouchableOpacity>
                 </View>
