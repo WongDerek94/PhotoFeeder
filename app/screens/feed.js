@@ -1,21 +1,37 @@
 import React from 'react';
 import { TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
+import { Font } from 'expo'
 
-class feed extends React.Component{
+export default class feed extends React.Component{
 
     constructor(props){
       super(props);
       this.state = {
         photo_feed: [],
         refresh: false,
-        loading: true
+        loading: true,
+        fontLoaded: false,
       }
     }
 
-    componentDidMount = () => {
-      //load the feed from the database
+    // componentDidMount = () => {
+    //   //load the feed from the database
+      
+    // }
+
+    async componentDidMount() {
       this.loadFeed();
+      await Font.loadAsync({
+        'Montserrat-Light': require('../../assets/fonts/Montserrat-Light.ttf'),
+        'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
+        'Montserrat-Bold': require('../../assets/fonts/Montserrat-Bold.ttf'),
+        'OpenSans-Bold': require('../../assets/fonts/OpenSans-Bold.ttf'),
+        'OpenSans-Light': require('../../assets/fonts/OpenSans-Bold.ttf'),
+        'OpenSans-Regular': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      });
+
+      this.setState({ fontLoaded: true });
     }
 
     pluralCheck = (s) => {
@@ -124,12 +140,16 @@ class feed extends React.Component{
       return(
         <View style={{flex: 1}}>
           
-          <View style={{height: 70, paddingTop: 30, backgroundColor: 'white', borderColor: 'lightgrey', borderBottomWidth: 0.5, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>Feed</Text>
+          <View style={styles.headerContainer}>
+            {
+              this.state.fontLoaded ? (
+                <Text style={styles.title}>Feed</Text>
+              ) : null
+            }
           </View>
 
           { this.state.loading == true ? (
-            <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={styles.loading}>
               <Text>Loading...</Text>
             </View>
           ) : (
@@ -139,30 +159,46 @@ class feed extends React.Component{
             onRefresh={this.loadNew}
             data={this.state.photo_feed}
             keyExtractor={(item, index) => index.toString()}
-            style={{flex:1, backgroundColor: '#eee'}}
+            style={styles.flatListContainer}
             renderItem={({item, index}) => (
-              <View key={index} style={{width: '100%', overflow: 'hidden', marginBottom: 5, justifyContent:'space-between', borderBottomWidth: 1, borderColor: 'grey'}}>
+              <View key={index} style={styles.feedContainer}>
 
-                <View style={{padding: 5, width: '100%', flexDirection: 'row', justifyContent: 'space-between'}}>
-                  <Text>{item.posted}</Text>
+                <View style={styles.feedHeaderContainer}>
+                  {
+                    this.state.fontLoaded ? (
+                      <Text style={styles.details}>{item.posted}</Text>
+                    ) : null
+                  }
                   <TouchableOpacity
                   onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
-                  <Text>{item.author}</Text>
+                  {
+                    this.state.fontLoaded ? (
+                      <Text style={styles.details}>{item.author}</Text>
+                    ) : null
+                  }
                   </TouchableOpacity>
                 </View>
 
                 <View>
                   <Image
                   source={{uri: item.url}}
-                  style={{resizeMode: 'cover', width: '100%', height: 275}}
+                  style={styles.feedImage}
                   />
                 </View>
 
                 <View style={{padding:5}}>
-                  <Text>{item.caption}</Text>
+                  {
+                    this.state.fontLoaded ? (
+                      <Text style={styles.detailsOpenSans}>{item.caption}</Text>
+                    ) : null
+                  }
                   <TouchableOpacity
                   onPress={ () => this.props.navigation.navigate('Comments', {userId: item.id})}>
-                    <Text style={{color: 'blue', marginTop: 10, textAlign: 'center'}}>[ View comments... ]</Text>
+                  {
+                    this.state.fontLoaded ? (
+                      <Text style={styles.viewComments}>[ View comments... ]</Text>
+                    ) : null
+                  }
                   </TouchableOpacity>
                 </View>
               </View>
@@ -175,4 +211,60 @@ class feed extends React.Component{
 
 }
 
-export default feed;
+
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 70, 
+    paddingTop: 20, 
+    backgroundColor: 'white', 
+    borderColor: 'lightgrey', 
+    borderBottomWidth: 0.5, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'Montserrat-Regular'
+  },
+  details: {
+    fontFamily: 'Montserrat-Light'
+  },
+  detailsOpenSans: {
+    fontFamily: 'OpenSans-Regular'
+  },
+  loading: {
+    flex:1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewComments: {
+    color: 'blue',
+    marginTop: 10,
+    textAlign: 'center',
+    fontFamily: 'Montserrat-Light'
+  },
+  feedImage: {
+    resizeMode: 'cover',
+    width: '100%',
+    height: 275
+  },
+  feedContainer: {
+    width: '100%',
+    overflow: 'hidden',
+    marginBottom: 5,
+    justifyContent:'space-between',
+    borderBottomWidth: 1,
+    borderColor: 'grey'
+  },
+  feedHeaderContainer: {
+    padding: 5,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  flatListContainer: {
+    flex:1,
+    backgroundColor: '#eee'
+  }
+});

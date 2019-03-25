@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialBottomTabNavigator } from 'react-navigation';
 import { f, auth, database, storage } from './config/config.js';
+import { Ionicons } from '@expo/vector-icons';
 
 import feed from './app/screens/feed.js';
 import upload from './app/screens/upload.js';
@@ -12,7 +13,10 @@ import comments from './app/screens/comments.js';
 
 const mainTabs = createBottomTabNavigator(
   {
-    Feed: { screen: feed },
+
+    Feed: {
+      screen: feed,
+    },
     Upload: { screen: upload },
     Profile: { screen: profile }
   }
