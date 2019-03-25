@@ -160,7 +160,10 @@ class feed extends React.Component{
 
                 <View style={{padding:5}}>
                   <Text>{item.caption}</Text>
-                  <Text style={{marginTop: 10, textAlign: 'center'}}>View comments...</Text>
+                  <TouchableOpacity
+                  onPress={ () => this.props.navigation.navigate('Comments', {userId: item.id})}>
+                    <Text style={{color: 'blue', marginTop: 10, textAlign: 'center'}}>[ View comments... ]</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}

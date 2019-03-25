@@ -34,12 +34,12 @@ class comments extends React.Component{
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         { this.state.loggedin == true ? (
           //logged in
-          <Text>Upload</Text>
+          <Text>Comments</Text>
         ) : (
           //not logged in
           <View>
             <Text>You are not logged in</Text>
-            <Text>Please login to view your profile</Text>
+            <Text>Please login to post a comment</Text>
           </View>
         )}
       </View>
