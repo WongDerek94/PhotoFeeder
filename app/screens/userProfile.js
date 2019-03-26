@@ -2,6 +2,8 @@ import React from 'react';
 import { TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
 
+import PhotoList from '../components/PhotoList.js'
+
 class userProfile extends React.Component{
 
   constructor(props){
@@ -28,19 +30,19 @@ class userProfile extends React.Component{
     //we have access to profile picture, name and username
     var that = this
 
-    database.ref('users').child(userId).child('username').once('value').then(function(snapshot) {
+    database.ref('users').child(`${userId}`).child('username').once('value').then(function(snapshot) {
       const exists = (snapshot.val() !== null);
       if(exists) data = snapshot.val();
         that.setState({username: data});
     }).catch(error => console.log(error));
 
-    database.ref('users').child(userId).child('name').once('value').then(function(snapshot) {
+    database.ref('users').child(`${userId}`).child('name').once('value').then(function(snapshot) {
       const exists = (snapshot.val() !== null);
       if(exists) data = snapshot.val();
         that.setState({name: data});
     }).catch(error => console.log(error));
 
-    database.ref('users').child(userId).child('avatar').once('value').then(function(snapshot) {
+    database.ref('users').child(`${userId}`).child('avatar').once('value').then(function(snapshot) {
       const exists = (snapshot.val() !== null);
       if(exists) data = snapshot.val();
         that.setState({avatar: data,
@@ -78,19 +80,14 @@ class userProfile extends React.Component{
                 <Text>{this.state.username}</Text>
               </View>
             </View>
-            <View>
-              
-            </View>
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'green'}}>
-                <Text>Loading photos...</Text>
-              </View>
+
+            <PhotoList isUser={true} userId={this.state.userId} navigation={this.props.navigation} />
+
           </View>
           )}
       </View>
     )
   }
-
-
 }
 
 export default userProfile;

@@ -1,9 +1,9 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": 19000,
-  "packagerPort": 19001,
-  "packagerPid": 22960,
-  "expoServerNgrokUrl": "https://mt-sg4.anonymous.photofeeder.exp.direct",
-  "packagerNgrokUrl": "https://packager.mt-sg4.anonymous.photofeeder.exp.direct",
-  "ngrokPid": 16460
+  "expoServerPort": null,
+  "packagerPort": null,
+  "packagerPid": null,
+  "expoServerNgrokUrl": null,
+  "packagerNgrokUrl": null,
+  "ngrokPid": null
 }

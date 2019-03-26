@@ -3,6 +3,8 @@ import { TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react
 import { f, auth, database, storage } from '../../config/config.js';
 import { Font } from 'expo'
 
+import PhotoList from '../components/PhotoList.js'
+
 export default class feed extends React.Component{
 
     constructor(props){
@@ -21,7 +23,6 @@ export default class feed extends React.Component{
     // }
 
     async componentDidMount() {
-      this.loadFeed();
       await Font.loadAsync({
         'Montserrat-Light': require('../../assets/fonts/Montserrat-Light.ttf'),
         'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
@@ -33,111 +34,6 @@ export default class feed extends React.Component{
 
       this.setState({ fontLoaded: true });
     }
-
-    pluralCheck = (s) => {
-      
-      if(s == 1) {
-        return ' ago';
-      } else {
-        return 's ago';
-      }
-
-    }
-
-    timeConverter = (timestamp) => {
-
-      var a = new Date(timestamp * 1000);
-      var seconds = Math.floor((new Date() - a) / 1000)
-      
-      //check how many years
-      var interval = Math.floor(seconds / 31536000);
-      if (interval > 1){
-        return interval + ' year' + this.pluralCheck(interval)
-      }
-
-      //check how many months
-      interval = Math.floor(seconds / 2592000);
-      if (interval > 1){
-        return interval + ' month' + this.pluralCheck(interval)
-      }
-
-      //check how many days
-      interval = Math.floor(seconds / 84600);
-      if (interval > 1){
-        return interval + ' day' + this.pluralCheck(interval)
-      }
-
-      //check how many hours
-      interval = Math.floor(seconds / 3600);
-      if (interval > 1){
-        return interval + ' hour' + this.pluralCheck(interval)
-      }
-
-      //check how many minutes
-      interval = Math.floor(seconds / 60);
-      if (interval > 1){
-        return interval + ' minute' + this.pluralCheck(interval)
-      }
-
-      return Math.floor(seconds) + ' second' + this.pluralCheck(seconds)
-      
-    }
-
-    addToFlatList = (photo_feed, data, photo) => {
-      console.log(data)
-      console.log(photo)
-      var that = this;
-      var photoObj = data[photo];
-      database.ref('users').child(`${photoObj.author}`).child('username').once('value').then(function(snapshot) {
-        const exists = (snapshot.val() !== null)
-        if(exists) data = snapshot.val();
-          photo_feed.push({
-            // id: photo,
-            url: photoObj.url,
-            caption: photoObj.caption,
-            posted: that.timeConverter(photoObj.posted),
-            // author: data,
-            authorId: photoObj.author
-          });
-
-          that.setState({
-            refresh: false,
-            loading: false,
-            
-          });
-      }).catch(error => console.log(error));
-    }
-
-    loadFeed = () => {
-      //reset state
-      this.setState({
-        refresh: true,
-        photo_feed: []
-      });
-
-      //making fetch to firebase won't allow us to access 'this'
-      var that = this;
-
-      //order by date they are posted, fetch data once (so it won't get more data as they are added),
-      database.ref('photos').orderByChild('posted').once('value').then(function(snapshot) {
-        //check if photos found in database
-        const exists = (snapshot.val() !== null)
-        if(exists) data = snapshot.val();
-        //allow updates state with each new photo fetched from database
-        var photo_feed = that.state.photo_feed;
-
-        for(var photo in data){
-          that.addToFlatList(photo_feed, data, photo);
-        }
-      }).catch(error => console.log(error));
-
-    }
-
-    loadNew = () => {
-      this.loadFeed();
-    }
-
-    //keyExtractor sets unique index for every item in the flatlist
 
     render(){
       return(
@@ -151,70 +47,11 @@ export default class feed extends React.Component{
             }
           </View>
 
-          { this.state.loading == true ? (
-            <View style={styles.loading}>
-              <Text>Loading...</Text>
-            </View>
-          ) : (
-
-          <FlatList
-            refreshing={this.state.refresh}
-            onRefresh={this.loadNew}
-            data={this.state.photo_feed}
-            keyExtractor={(item, index) => index.toString()}
-            style={styles.flatListContainer}
-            renderItem={({item, index}) => (
-              <View key={index} style={styles.feedContainer}>
-
-                <View style={styles.feedHeaderContainer}>
-                  {
-                    this.state.fontLoaded ? (
-                      <Text style={styles.details}>{item.posted}</Text>
-                    ) : null
-                  }
-                  <TouchableOpacity
-                  onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
-                  {
-                    this.state.fontLoaded ? (
-                      <Text style={styles.details}>{item.authorId}</Text>
-                    ) : null
-                  }
-                  </TouchableOpacity>
-                </View>
-
-                <View>
-                  <Image
-                  source={{uri: item.url}}
-                  style={styles.feedImage}
-                  />
-                </View>
-
-                <View style={{padding:5}}>
-                  {
-                    this.state.fontLoaded ? (
-                      <Text style={styles.detailsOpenSans}>{item.caption}</Text>
-                    ) : null
-                  }
-                  <TouchableOpacity
-                  onPress={ () => this.props.navigation.navigate('Comments', {userId: item.id})}>
-                  {
-                    this.state.fontLoaded ? (
-                      <Text style={styles.viewComments}>[ View comments... ]</Text>
-                    ) : null
-                  }
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-            /> 
-            )}
+          <PhotoList isUser={false} navigation={this.props.navigation} />
         </View>
       )
     }
-
 }
-
-
 
 const styles = StyleSheet.create({
   headerContainer: {

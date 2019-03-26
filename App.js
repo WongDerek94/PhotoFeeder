@@ -39,19 +39,8 @@ const MainStack = createStackNavigator(
 const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
-
-  login = async() => {
-    //Force user to login
-    try {
-      let user = await auth.signInWithEmailAndPassword('test@user.com', 'password');
-    } catch(error){
-      console.log(error);
-    }
-  }
-
   constructor(props){
     super(props);
-    this.login();
   }
 
   render() {

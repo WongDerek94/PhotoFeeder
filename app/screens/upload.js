@@ -3,6 +3,8 @@ import { TextInput, ActivityIndicator, TouchableOpacity, FlatList, StyleSheet, T
 import { f, auth, database, storage } from '../../config/config.js';
 import { Permissions, ImagePicker } from 'expo';
 
+import UserAuth from '../components/auth.js'
+
 class upload extends React.Component{
 
   constructor(props){
@@ -34,7 +36,6 @@ class upload extends React.Component{
     return(
       this.s4() + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4() + "-" + this.s4()
     );
-
   }
 
   findNewImage = async () => {
@@ -264,10 +265,7 @@ class upload extends React.Component{
           </View>
         ) : (
           //not logged in
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>You are not logged in</Text>
-            <Text>Please login to view your profile</Text>
-          </View>
+          <UserAuth message={'Please login to upload a photo'} />
         )}
       </View>
     )
