@@ -103,14 +103,17 @@ class PhotoList extends React.Component{
           url: photoObj.url,
           caption: photoObj.caption,
           posted: that.timeConverter(photoObj.posted),
+          timestamp: photoObj.posted,
           // author: data,
           authorId: photoObj.author
         });
 
+        var myData = [].concat(photo_feed).sort((a,b) => a.timestamp < b.timestamp)
+
         that.setState({
           refresh: false,
           loading: false,
-          
+          photo_feed: myData
         });
     }).catch(error => console.log(error));
   }
@@ -135,13 +138,18 @@ class PhotoList extends React.Component{
     loadRef.orderByChild('posted').once('value').then(function(snapshot) {
       //check if photos found in database
       const exists = (snapshot.val() !== null)
-      if(exists) data = snapshot.val();
-      //allow updates state with each new photo fetched from database
-      var photo_feed = that.state.photo_feed;
+      if(exists) {
+        data = snapshot.val();
+        //allow updates state with each new photo fetched from database
+        var photo_feed = that.state.photo_feed;
+        that.setState({empty: false})
 
-      for(var photo in data){
-        that.addToFlatList(photo_feed, data, photo);
+        for(var photo in data){
+          that.addToFlatList(photo_feed, data, photo);
       }
+    } else {
+      that.setState({empty: true});
+    }
     }).catch(error => console.log(error));
 
   }
@@ -155,7 +163,11 @@ class PhotoList extends React.Component{
       <View style={{flex: 1}}>
         { this.state.loading == true ? (
           <View style={styles.loading}>
+            { this.state.empty == true ? (
+              <Text>No photos found...</Text> 
+            ) : (
             <Text>Loading...</Text>
+            )}
           </View>
         ) : (
 
