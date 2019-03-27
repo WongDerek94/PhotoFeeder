@@ -34,6 +34,7 @@ class PhotoList extends React.Component{
     if(isUser == true){
       //Profile
       //userid
+      console.log('hi');
       this.loadFeed(userId);
 
     } else {
@@ -118,7 +119,7 @@ class PhotoList extends React.Component{
     }).catch(error => console.log(error));
   }
 
-  loadFeed = (userId) => {
+  loadFeed = (userId = '') => {
     //reset state
     this.setState({
       refresh: true,
@@ -155,7 +156,11 @@ class PhotoList extends React.Component{
   }
 
   loadNew = () => {
-    this.loadFeed();
+    if ( this.props.userId != ''){
+      this.loadFeed(this.props.userId);
+    } else {
+      this.loadFeed();
+    }
   }
 
   render(){
@@ -166,62 +171,61 @@ class PhotoList extends React.Component{
             { this.state.empty == true ? (
               <Text>No photos found...</Text> 
             ) : (
-            <Text>Loading...</Text>
+                <Text>Loading...</Text>
             )}
           </View>
         ) : (
+            <FlatList
+              refreshing={this.state.refresh}
+              onRefresh={this.loadNew}
+              data={this.state.photo_feed}
+              keyExtractor={(item, index) => index.toString()}
+              style={styles.flatListContainer}
+              renderItem={({item, index}) => (
+                <View key={index} style={styles.feedContainer}>
 
-        <FlatList
-          refreshing={this.state.refresh}
-          onRefresh={this.loadNew}
-          data={this.state.photo_feed}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.flatListContainer}
-          renderItem={({item, index}) => (
-            <View key={index} style={styles.feedContainer}>
+                  <View style={styles.feedHeaderContainer}>
+                    {
+                      this.state.fontLoaded ? (
+                        <Text style={styles.details}>{item.posted}</Text>
+                      ) : null
+                    }
+                    <TouchableOpacity
+                      onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
+                    {
+                      this.state.fontLoaded ? (
+                        <Text style={styles.details}>{item.authorId}</Text>
+                      ) : null
+                    }
+                    </TouchableOpacity>
+                  </View>
 
-              <View style={styles.feedHeaderContainer}>
-                {
-                  this.state.fontLoaded ? (
-                    <Text style={styles.details}>{item.posted}</Text>
-                  ) : null
-                }
-                <TouchableOpacity
-                onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
-                {
-                  this.state.fontLoaded ? (
-                    <Text style={styles.details}>{item.authorId}</Text>
-                  ) : null
-                }
-                </TouchableOpacity>
-              </View>
+                  <View>
+                    <Image
+                      source={{uri: item.url}}
+                      style={styles.feedImage}
+                    />
+                  </View>
 
-              <View>
-                <Image
-                source={{uri: item.url}}
-                style={styles.feedImage}
-                />
-              </View>
-
-              <View style={{padding:5}}>
-                {
-                  this.state.fontLoaded ? (
-                    <Text style={styles.detailsOpenSans}>{item.caption}</Text>
-                  ) : null
-                }
-                <TouchableOpacity
-                onPress={ () => this.props.navigation.navigate('Comments', {photoId: item.id})}>
-                {
-                  this.state.fontLoaded ? (
-                    <Text style={styles.viewComments}>[ View comments... ]</Text>
-                  ) : null
-                }
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-          /> 
-          )}
+                  <View style={{padding:5}}>
+                    {
+                      this.state.fontLoaded ? (
+                        <Text style={styles.detailsOpenSans}>{item.caption}</Text>
+                      ) : null
+                    }
+                    <TouchableOpacity
+                      onPress={ () => this.props.navigation.navigate('Comments', {photoId: item.id})}>
+                    {
+                      this.state.fontLoaded ? (
+                        <Text style={styles.viewComments}>[ View comments... ]</Text>
+                      ) : null
+                    }
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            />)
+        }
       </View>
     )
   }
