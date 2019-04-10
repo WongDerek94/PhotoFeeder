@@ -93,7 +93,7 @@ class profile extends React.Component{
               <Image source={{ uri: this.state.avatar }} style={{marginLeft: 10, width:100, height:100, borderRadius: 50}} />
               <View style={{marginRight: 10}}>
                 <Text style={styles.details}>{this.state.name}</Text>
-                <Text style={styles.detailsOpenSans}>{this.state.username}</Text>
+                <Text style={styles.detailsReg}>{this.state.username}</Text>
               </View>
             </View>
             { this.state.editingProfile == true ? (
@@ -207,5 +207,8 @@ const styles = StyleSheet.create({
   },
   detailsOpenSans: {
     fontFamily: 'OpenSans-Regular'
-  }
+  },
+  detailsReg: {
+    fontFamily: 'Montserrat-Regular'
+  },
 });

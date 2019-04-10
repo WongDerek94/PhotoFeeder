@@ -164,7 +164,7 @@ class upload extends React.Component{
       author: userId,
       caption: caption,
       posted: timestamp,
-      url: imageUrl
+      url: imageUrl,
     };
  
     //Update database
