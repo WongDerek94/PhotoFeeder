@@ -1,6 +1,8 @@
 import React from 'react';
 import { KeyboardAvoidingView, TextInput , TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
+import { Font } from 'expo';
+import { Ionicons } from '@expo/vector-icons';
 
 import UserAuth from '../components/auth.js'
 
@@ -10,7 +12,8 @@ class comments extends React.Component{
     super(props);
     this.state = {
       loggedin: false,
-      comments_list: []
+      comments_list: [],
+      fontLoaded: false,
     }
   }
 
@@ -175,7 +178,7 @@ class comments extends React.Component{
     this.fetchComments(this.state.photoId);
   }
 
-  componentDidMount = () => {
+  async componentDidMount() {
     var that = this;
     f.auth().onAuthStateChanged(function(user){
       if(user){
@@ -192,6 +195,17 @@ class comments extends React.Component{
     });
 
     this.checkParams();
+
+    await Font.loadAsync({
+        'Montserrat-Light': require('../../assets/fonts/Montserrat-Light.ttf'),
+        'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
+        'Montserrat-Bold': require('../../assets/fonts/Montserrat-Bold.ttf'),
+        'OpenSans-Bold': require('../../assets/fonts/OpenSans-Bold.ttf'),
+        'OpenSans-Light': require('../../assets/fonts/OpenSans-Bold.ttf'),
+        'OpenSans-Regular': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      });
+
+      this.setState({ fontLoaded: true });
   }
 
   render(){
@@ -201,15 +215,15 @@ class comments extends React.Component{
           <TouchableOpacity
           style={{width: 100}}
           onPress={() => this.props.navigation.goBack()}>
-            <Text style={{fontSize: 12, fontWeight: 'bold', paddingLeft: 10}}>Go Back</Text>
+            <Ionicons name="md-arrow-back" size={20} style={{marginHorizontal: 10}}/>
           </TouchableOpacity>
-            <Text>Comments</Text>
+            <Text style={styles.title}>Comments</Text>
             <Text style={{width: 100}}></Text>
         </View>
 
         { this.state.comments_list.length == 0 ? (
           //no comments; show empty state
-          <Text>No comments found...</Text>
+          <Text style={styles.detailsLight}>No comments found...</Text>
         ) : (
           //are comments
           <FlatList
@@ -220,14 +234,14 @@ class comments extends React.Component{
           renderItem={({item, index}) => (
             <View key={index} style={{width: '100%', overflow: 'hidden', marginBottom: 5, justifyContent: 'space-between', borderBottomWidth: 1, borderColor: 'grey'}}>
               <View style={{padding: 5, width: '100%', flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text>{item.posted}</Text>
+                <Text style={styles.detailsLight}>{item.posted}</Text>
                 <TouchableOpacity
                 onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
-                  <Text>{item.author}</Text>
+                  <Text style={styles.detailsLight}>{item.author}</Text>
                 </TouchableOpacity> 
               </View>
               <View style={{padding:5}}>
-                <Text>{item.comment}</Text>
+                <Text style={styles.detailsOpenSansLight}>{item.comment}</Text>
               </View>
             </View>
           )}
@@ -236,7 +250,7 @@ class comments extends React.Component{
         { this.state.loggedin == true ? (
           //logged in
           <KeyboardAvoidingView behavior="padding" enabled style={{borderTopWidth: 1, borderTopColor: 'grey', padding: 10, marginBottom: 15}}>
-            <Text style={{fontWeight: 'bold'}}>Post Comment</Text>
+            <Text style={styles.details}>Post Comment</Text>
             <View>
               <TextInput
                 editable={true}
@@ -246,15 +260,15 @@ class comments extends React.Component{
                 style={{marginVertical: 10, height: 50, padding: 5, borderColor: 'grey', borderRadius: 3, backgroundColor: 'white', color: 'black'}}
               />
               <TouchableOpacity
-              style={{paddingVertical: 10, paddingHorizontal: 20, backgroundColor: 'blue', borderRadius: 5}}
+              style={styles.button}
               onPress={() => this.postComment()}>
-                <Text style={{color:'white'}}>Post</Text>
+                <Text style={styles.buttonText}>Post</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
         ) : (
           //not logged in
-          <UserAuth message={'Please login to post a comment'} movescreen={true} navigation={this.props.navigation} />
+          <UserAuth message={'Log in to post a comment'} movescreen={true} navigation={this.props.navigation} />
         )}
       </View>
     )
@@ -264,3 +278,56 @@ class comments extends React.Component{
 }
 
 export default comments;
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 70, 
+    paddingTop: 20, 
+    backgroundColor: 'white', 
+    borderColor: 'lightgrey', 
+    borderBottomWidth: 0.5, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'Montserrat-Regular'
+  },
+  upload: {
+    fontSize: 28,
+    paddingBottom: 15,
+    fontFamily: 'Montserrat-Regular'
+  },
+  captionText: {
+    marginTop: 5,
+    fontFamily: 'Montserrat-Light'
+  },
+  button: {
+    alignSelf:'center',
+    width: 190,
+    marginHorizontal: 'auto',
+    backgroundColor: '#0099ff',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontFamily: 'Montserrat-Light'
+  },
+  details: {
+    fontFamily: 'Montserrat-Regular'
+  },
+  detailsOpenSans: {
+    fontFamily: 'OpenSans-Regular'
+  },
+  detailsLight: {
+    fontFamily: 'Montserrat-Light',
+    alignSelf: 'center'
+  },
+  detailsOpenSansLight: {
+    fontFamily: 'OpenSans-Light'
+  },
+});

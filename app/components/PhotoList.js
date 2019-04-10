@@ -99,13 +99,14 @@ class PhotoList extends React.Component{
     database.ref('users').child(`${photoObj.author}`).child('username').once('value').then(function(snapshot) {
       const exists = (snapshot.val() !== null)
       if(exists) data = snapshot.val();
+      console.log(data);
         photo_feed.push({
           id: photo,
           url: photoObj.url,
           caption: photoObj.caption,
           posted: that.timeConverter(photoObj.posted),
           timestamp: photoObj.posted,
-          // author: data,
+          author: data,
           authorId: photoObj.author
         });
 
@@ -194,7 +195,7 @@ class PhotoList extends React.Component{
                       onPress={ () => this.props.navigation.navigate('User', {userId: item.authorId})}>
                     {
                       this.state.fontLoaded ? (
-                        <Text style={styles.details}>{item.authorId}</Text>
+                        <Text style={styles.details}>{item.author}</Text>
                       ) : null
                     }
                     </TouchableOpacity>

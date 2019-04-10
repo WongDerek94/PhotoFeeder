@@ -2,6 +2,7 @@ import React from 'react';
 import { TextInput, ActivityIndicator, TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
 import { Permissions, ImagePicker } from 'expo';
+import { Font } from 'expo';
 
 import UserAuth from '../components/auth.js'
 
@@ -15,7 +16,8 @@ class upload extends React.Component{
       imageSelected: false,
       uploading: false,
       caption: "",
-      progress: 0
+      progress: 0,
+      fontLoaded: false,
     };
   }
 
@@ -162,7 +164,7 @@ class upload extends React.Component{
       author: userId,
       caption: caption,
       posted: timestamp,
-      url: imageUrl
+      url: imageUrl,
     };
  
     //Update database
@@ -184,7 +186,7 @@ class upload extends React.Component{
   };
 
 
-  componentDidMount = () => {
+  async componentDidMount(){
     var that = this;
     f.auth().onAuthStateChanged(function(user){
       if(user){
@@ -198,7 +200,18 @@ class upload extends React.Component{
           loggedin: false
         });
       }
-    });
+    })
+
+    await Font.loadAsync({
+      'Montserrat-Light': require('../../assets/fonts/Montserrat-Light.ttf'),
+      'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
+      'Montserrat-Bold': require('../../assets/fonts/Montserrat-Bold.ttf'),
+      'OpenSans-Bold': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      'OpenSans-Light': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      'OpenSans-Regular': require('../../assets/fonts/OpenSans-Bold.ttf'),
+    })
+
+    this.setState({ fontLoaded: true })
   }
 
   render(){
@@ -210,11 +223,11 @@ class upload extends React.Component{
             { this.state.imageSelected == true ? (
               //image is selected
               <View style={{flex: 1}}>
-                <View style={{height: 70, paddingTop: 30, backgroundColor: 'white', borderColor: 'lightgrey', borderBottomWidth: 0.5, justifyContent: 'center', alignItems: 'center'}}>
-                  <Text>Upload</Text>
+                <View style={styles.headerContainer}>
+                  <Text style={styles.title}>Upload</Text>
                 </View>
                 <View style={{padding:5}}>
-                  <Text style={{marginTop: 5}}>Caption:</Text>
+                  <Text style={styles.captionText}>Caption:</Text>
                   <TextInput
                     editable={true}
                     placeholder={'Enter your caption...'}
@@ -227,8 +240,8 @@ class upload extends React.Component{
                   
                   <TouchableOpacity
                   onPress={ () => this.uploadPublish()}
-                  style={{alignSelf:'center', width: 170, marginHorizontal: 'auto', backgroundColor: 'purple', borderRadius: 5, paddingVertical: 10, paddingHorizontal: 20}}>
-                    <Text style={{textAlign: 'center', color: 'white'}}>Upload and Publish</Text>
+                  style={styles.button}>
+                    <Text style={styles.buttonText}>Upload and Publish</Text>
                   </TouchableOpacity>
 
                   { this.state.uploading == true ? (
@@ -238,7 +251,7 @@ class upload extends React.Component{
                       { this.state.progress != 100 ? (
                         <ActivityIndicator size="small" color="blue" />
                       ) : (
-                        <Text>Processing</Text>
+                        <Text style={styles.details}>Processing</Text>
                       )}
                     </View>
                   ) : (
@@ -254,18 +267,18 @@ class upload extends React.Component{
               </View>
             ): (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-              <Text style={{fontSize: 28, paddingBottom: 15}}>Upload</Text>
+              <Text style={styles.upload}>Upload</Text>
               <TouchableOpacity
               onPress={() => this.findNewImage()}
-              style={{paddingVertical: 10, paddingHorizontal: 20, backgroundColor: 'blue', borderRadius: 5}}>
-                <Text style={{color: 'white'}}>Select Photo</Text>
+              style={styles.button}>
+                <Text style={styles.buttonText}>Select Photo</Text>
               </TouchableOpacity>
             </View>
             )}
           </View>
         ) : (
           //not logged in
-          <UserAuth message={'Please login to upload a photo'} />
+          <UserAuth message={'Log in to upload a photo'} />
         )}
       </View>
     )
@@ -275,3 +288,45 @@ class upload extends React.Component{
 }
 
 export default upload;
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 70, 
+    paddingTop: 20, 
+    backgroundColor: 'white', 
+    borderColor: 'lightgrey', 
+    borderBottomWidth: 0.5, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'Montserrat-Regular'
+  },
+  upload: {
+    fontSize: 28,
+    paddingBottom: 15,
+    fontFamily: 'Montserrat-Regular'
+  },
+  captionText: {
+    marginTop: 5,
+    fontFamily: 'Montserrat-Light'
+  },
+  button: {
+    alignSelf:'center',
+    width: 190,
+    marginHorizontal: 'auto',
+    backgroundColor: '#0099ff',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontFamily: 'Montserrat-Light'
+  },
+  details: {
+    fontFamily: 'Montserrat-Light'
+  }
+});

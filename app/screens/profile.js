@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextInput, TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
+import { Font } from 'expo';
 
 import PhotoList from '../components/PhotoList.js'
 import UserAuth from '../components/auth.js'
@@ -10,11 +11,12 @@ class profile extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      loggedin: false
+      loggedin: false,
+      fontLoaded: false,
     }
   }
 
-  componentDidMount = () => {
+  async componentDidMount(){
     var that = this;
     f.auth().onAuthStateChanged(function(user){
       if(user){
@@ -27,6 +29,17 @@ class profile extends React.Component{
         });
       }
     });
+
+    await Font.loadAsync({
+      'Montserrat-Light': require('../../assets/fonts/Montserrat-Light.ttf'),
+      'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
+      'Montserrat-Bold': require('../../assets/fonts/Montserrat-Bold.ttf'),
+      'OpenSans-Bold': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      'OpenSans-Light': require('../../assets/fonts/OpenSans-Bold.ttf'),
+      'OpenSans-Regular': require('../../assets/fonts/OpenSans-Bold.ttf'),
+    })
+
+    this.setState({ fontLoaded: true })
   }
 
   fetchUserInfo = (userId) => {
@@ -73,22 +86,19 @@ class profile extends React.Component{
         { this.state.loggedin == true ? (
           //logged in
           <View style={{flex: 1}}>
-            <View style={{height: 70, paddingTop: 30, backgroundColor: 'white', borderColor: 'lightgrey', borderBottomWidth: 0.5, justifyContent: 'center', alignItems: 'center'}}>
-              <Text>Profile</Text>
+            <View style={styles.headerContainer}>
+              <Text style={styles.title}>Profile</Text>
             </View>
             <View style={{justifyContent:'space-evenly', alignItems: 'center', flexDirection: 'row', paddingVertical: 10}}>
               <Image source={{ uri: this.state.avatar }} style={{marginLeft: 10, width:100, height:100, borderRadius: 50}} />
               <View style={{marginRight: 10}}>
-                <Text>{this.state.name}</Text>
-                <Text>{this.state.username}</Text>
+                <Text style={styles.details}>{this.state.name}</Text>
+                <Text style={styles.detailsReg}>{this.state.username}</Text>
               </View>
             </View>
             { this.state.editingProfile == true ? (
                 <View style={{alignItems: 'center', justifyContent: 'center', paddingBottom:20, borderBottomWidth:1}}>
-                  <TouchableOpacity onPress={() => this.setState({editingProfile: false})}>
-                    <Text style={{fontWeight: 'bold'}}>Cancel Editing</Text>
-                  </TouchableOpacity>
-                  <Text>Name: </Text>
+                  <Text style={styles.details}>Name: </Text>
                   <TextInput
                     editable={true}
                     placehodler={'Enter your name'}
@@ -96,7 +106,7 @@ class profile extends React.Component{
                     value={this.state.name}
                     style={{width: 250, marginVertical: 10, padding: 5, borderColor: 'grey', borderWidth: 1}}
                   />
-                  <Text>Username: </Text>
+                  <Text style={styles.details}>Username: </Text>
                   <TextInput
                     editable={true}
                     placehodler={'Enter your name'}
@@ -105,11 +115,15 @@ class profile extends React.Component{
                     style={{width: 250, marginVertical: 10, padding: 5, borderColor: 'grey', borderWidth: 1}}
                   />
                   <TouchableOpacity
-                  style={{backgroundColor: 'blue', padding: 10}}
+                  style={styles.button}
                   onPress={() => this.saveProfile()}>
-                    <Text style={{color: 'white', fontWeight: 'bold'}}>Save Changes</Text>
+                    <Text style={styles.buttonText}>Save Changes</Text>
                   </TouchableOpacity>
-
+                  <TouchableOpacity 
+                    onPress={() => this.setState({editingProfile: false})}
+                    style={styles.button}>
+                    <Text style={styles.buttonText}>Cancel Editing</Text>
+                  </TouchableOpacity>
                 </View>
             ) : (
 
@@ -117,18 +131,18 @@ class profile extends React.Component{
                 <View style={{paddingBottom:20, borderBottomWidth:1}}>
                   <TouchableOpacity 
                   onPress={() => this.logoutUser()}
-                  style={{marginTop: 10, marginHorizontal: 40, paddingVertical: 15, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
-                    <Text style={{textAlign: 'center', color: 'grey'}}>Logout</Text>
+                  style={{marginTop: 10, marginHorizontal: 40, paddingVertical: 5, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
+                    <Text style={{textAlign: 'center', color: 'grey', fontFamily: 'Montserrat-Regular'}}>Logout</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                   onPress={() => this.editProfile()}
-                  style={{marginTop: 10, marginHorizontal: 40, paddingVertical: 15, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
-                    <Text style={{textAlign: 'center', color: 'grey'}}>Edit Profile</Text>
+                  style={{marginTop: 10, marginHorizontal: 40, paddingVertical: 5, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
+                    <Text style={{textAlign: 'center', color: 'grey', fontFamily: 'Montserrat-Regular'}}>Edit Profile</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                   onPress={() => this.props.navigation.navigate('Upload')}
-                  style={{backgroundColor: 'grey', marginTop: 10, marginHorizontal: 40, paddingVertical: 35, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
-                    <Text style={{textAlign: 'center', color: 'white'}}>Upload New</Text>
+                  style={{backgroundColor: '#0099ff', marginTop: 10, marginHorizontal: 40, paddingVertical: 10, borderRadius: 20, borderColor: 'grey', borderWidth: 1.5}}>
+                    <Text style={{textAlign: 'center', color: 'white', fontFamily: 'Montserrat-Regular'}}>Upload New</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -139,7 +153,7 @@ class profile extends React.Component{
           </View>
         ) : (
           //not logged in
-          <UserAuth message={'Please login to view your profile'} />
+          <UserAuth message={'Log in to view your profile'} />
         )}
       </View>
     )
@@ -149,3 +163,52 @@ class profile extends React.Component{
 }
 
 export default profile;
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 70, 
+    paddingTop: 20, 
+    backgroundColor: 'white', 
+    borderColor: 'lightgrey', 
+    borderBottomWidth: 0.5, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: 'Montserrat-Regular'
+  },
+  upload: {
+    fontSize: 28,
+    paddingBottom: 15,
+    fontFamily: 'Montserrat-Regular'
+  },
+  captionText: {
+    marginTop: 5,
+    fontFamily: 'Montserrat-Light'
+  },
+  button: {
+    alignSelf:'center',
+    width: 190,
+    marginHorizontal: 'auto',
+    backgroundColor: '#0099ff',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontFamily: 'Montserrat-Light'
+  },
+  details: {
+    fontFamily: 'Montserrat-Light'
+  },
+  detailsOpenSans: {
+    fontFamily: 'OpenSans-Regular'
+  },
+  detailsReg: {
+    fontFamily: 'Montserrat-Regular'
+  },
+});
