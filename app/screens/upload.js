@@ -2,7 +2,7 @@ import React from 'react';
 import { TextInput, ActivityIndicator, TouchableOpacity, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import { f, auth, database, storage } from '../../config/config.js';
 import { Permissions, ImagePicker } from 'expo';
-import { Font } from 'expo'
+import { Font } from 'expo';
 
 import UserAuth from '../components/auth.js'
 
